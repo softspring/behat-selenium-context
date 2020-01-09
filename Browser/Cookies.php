@@ -36,9 +36,10 @@ trait Cookies
         $driver = $this->getSeleniumDriver();
 
         $session = $driver->getWebDriverSession();
-        $cookie = $session->getCookie($cookieName);
+        $cookies = $session->getCookie();
+        $cookie = array_filter($cookies, function(array $cookie) use ($cookieName) { return $cookie['name'] == $cookieName; })[0] ?? null;
 
-        if (!isset($cookie['name']) || $cookie['name'] != $cookieName) {
+        if (!isset($cookie['name'])) {
             throw new ExpectationException("Missing expected '$cookieName' cookie", $driver);
         }
     }
@@ -51,9 +52,10 @@ trait Cookies
         $driver = $this->getSeleniumDriver();
 
         $session = $driver->getWebDriverSession();
-        $cookie = $session->getCookie($cookieName);
+        $cookies = $session->getCookie();
+        $cookie = array_filter($cookies, function(array $cookie) use ($cookieName) { return $cookie['name'] == $cookieName; })[0] ?? null;
 
-        if (isset($cookie['name']) && $cookie['name'] == $cookieName) {
+        if (isset($cookie['name'])) {
             throw new ExpectationException("Existing not expected '$cookieName' cookie", $driver);
         }
     }
