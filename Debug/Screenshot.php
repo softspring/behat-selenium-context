@@ -33,13 +33,18 @@ trait Screenshot
         }
 
         $filename = sprintf(
-            '%s_%s_%s',
-            $this->getMinkParameter('browser_name'),
+            '%s_%s',
             date('Ymd') . '-' . date('His'),
             uniqid('', true)
         );
 
         $this->saveScreenshot($filename . '.png', $this->screenShotPath);
         file_put_contents($this->screenShotPath . '/' . $filename . '.html', '' . $driver->getContent());
+
+        $requestData = [
+            'URL: '. $this->getSession()->getCurrentUrl(),
+        ];
+
+        file_put_contents($this->screenShotPath . '/' . $filename . '.txt', '' . implode("\n", $requestData));
     }
 }
