@@ -4,8 +4,6 @@ namespace Softspring\BehatSeleniumContext;
 
 use Behat\Behat\Context\Context;
 use Behat\MinkExtension\Context\MinkContext;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\ConnectionException;
 
 class SeleniumContext extends MinkContext implements Context
 {
@@ -15,6 +13,7 @@ class SeleniumContext extends MinkContext implements Context
     use Js\Console;
     use Js\Scroll;
     use Debug\Screenshot;
+    use Tools\StartSession;
     use Tools\Wait;
 
     /**
