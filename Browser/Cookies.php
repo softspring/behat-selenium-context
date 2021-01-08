@@ -9,15 +9,18 @@ trait Cookies
 {
     /**
      * @When /^I want to dump cookies$/
-     * @throws \Exception
      */
     public function dumpCookies()
     {
-        var_dump($this->getSeleniumDriver()->getWebDriverSession()->getAllCookies());
+        $cookies = $this->getSeleniumDriver()->getWebDriverSession()->getAllCookies();
+
+        foreach ($cookies as $i => $cookie) {
+            echo "${cookie['name']}: ${cookie['value']} (domain: ${cookie['domain']} ; path: ${cookie['path']}; httpOnly: ${cookie['httpOnly']}; secure: ${cookie['secure']})". ($i+1<sizeof($cookies)?"\n":'');
+        }
     }
 
     /**
-     * @When /^I remove the "([^"]*)" cookie$/
+     * @Given /^I remove the "([^"]*)" cookie$/
      */
     public function removeCookie($cookieName)
     {
@@ -29,6 +32,27 @@ trait Cookies
     }
 
     /**
+     * @Given /^I remove all cookies$/
+     */
+    public function removeAllCookies()
+    {
+        $driver = $this->getSeleniumDriver();
+
+        $session = $driver->getWebDriverSession();
+
+        $cookies = $session->getAllCookies();
+
+        if (empty($cookies)) {
+            echo "No cookies present";
+        }
+
+        foreach ($cookies as $i => $cookie) {
+            echo "Remove ${cookie['name']}". ($i+1<sizeof($cookies)?"\n":'');
+            $session->deleteCookie($cookie['name']);
+        }
+    }
+
+    /**
      * @When /^I should have a "([^"]*)" cookie$/
      */
     public function hasCookie($cookieName)
@@ -36,10 +60,11 @@ trait Cookies
         $driver = $this->getSeleniumDriver();
 
         $session = $driver->getWebDriverSession();
-        $cookies = $session->getCookie();
-        $cookie = array_filter($cookies, function(array $cookie) use ($cookieName) { return $cookie['name'] == $cookieName; })[0] ?? null;
+        $cookies = $session->getAllCookies();
 
-        if (!isset($cookie['name'])) {
+        $cookie = current(array_filter($cookies, function(array $cookie) use ($cookieName) { return $cookie['name'] === $cookieName; })) ?? null;
+
+        if (empty($cookie)) {
             throw new ExpectationException("Missing expected '$cookieName' cookie", $driver);
         }
     }
